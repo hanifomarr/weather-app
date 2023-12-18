@@ -16,6 +16,7 @@ import { theme } from "../utils/theme";
 import { fetchForecast, fetchLocation } from "../api/weather";
 import { debounce } from "lodash";
 import { weatherImages } from "../utils/constant";
+import { getData, storeData } from "../utils/asyncStorage";
 
 const Home = () => {
   const [showSearch, setShowSearch] = useState(false);
@@ -33,6 +34,7 @@ const Home = () => {
       setShowSearch(false);
       setWeather(data);
       setLoading(false);
+      storeData("city", loc.name);
     });
   };
 
@@ -48,9 +50,15 @@ const Home = () => {
     fetchInitialWeatherData();
   }, []);
 
-  const fetchInitialWeatherData = () => {
+  const fetchInitialWeatherData = async () => {
+    const city = await getData("city");
+    let city_name = "malaysia";
+    if (city) {
+      city_name = city;
+    }
+
     fetchForecast({
-      city_name: "malaysia",
+      city_name,
       num_days: 7,
     }).then((data) => {
       setWeather(data);
